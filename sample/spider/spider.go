@@ -89,7 +89,8 @@ func RunSave(c chan string, url string) {
 	for true {
 		s := <-c
 		req, _ := http.NewRequest("POST", url, strings.NewReader(s))
-		_, _ = client.Do(req)
+		response, _ := client.Do(req)
+		response.Body.Close()
 	}
 }
 
