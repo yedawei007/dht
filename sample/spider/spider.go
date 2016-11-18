@@ -4,9 +4,12 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/shiyanhui/dht"
+	//"github.com/shiyanhui/dht"
+	"dht"
 	"net/http"
 	_ "net/http/pprof"
+	"strings"
+	"flag"
 )
 
 type file struct {
@@ -25,7 +28,10 @@ func main() {
 	go func() {
 		http.ListenAndServe(":6060", nil)
 	}()
-
+	url := flag.String("url","", "sprider -url=http://localhost:8080/sendData");
+	flag.Parse()
+	ch := make(chan string, 100)
+	go RunSave(ch, url)
 	w := dht.NewWire(65536, 1024, 256)
 	go func() {
 		for resp := range w.Response() {
@@ -61,7 +67,8 @@ func main() {
 
 			data, err := json.Marshal(bt)
 			if err == nil {
-				fmt.Printf("%s\n\n", data)
+				//fmt.Printf("%s\n\n", data)
+				ch <- string(data)
 			}
 		}
 	}()
@@ -75,3 +82,14 @@ func main() {
 
 	d.Run()
 }
+
+
+func RunSave(c chan string, url string) {
+	client := http.Client{}
+	for true {
+		s := <-c
+		req, _ := http.NewRequest("POST", url, strings.NewReader(s))
+		_, _ = client.Do(req)
+	}
+}
+
