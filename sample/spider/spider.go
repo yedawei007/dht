@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/hex"
 	"encoding/json"
-	"fmt"
+	//"fmt"
 	//"github.com/shiyanhui/dht"
 	"dht"
 	"net/http"
@@ -31,7 +31,7 @@ func main() {
 	url := flag.String("url","", "sprider -url=http://localhost:8080/sendData");
 	flag.Parse()
 	ch := make(chan string, 100)
-	go RunSave(ch, url)
+	go RunSave(ch, *url)
 	w := dht.NewWire(65536, 1024, 256)
 	go func() {
 		for resp := range w.Response() {
